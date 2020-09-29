@@ -64,9 +64,11 @@
         <div class="select">
           <select @change="readMatchs()" v-model="selected">
             <option value="1">Day 1</option>
-            <option selected value="2">Day 2</option>
+            <option value="2">Day 2</option>
             <option value="3">Day 3</option>
             <option value="4">Day 4</option>
+            <option value="5">Day 5</option>
+            <option selected value="6">Day 6</option>
           </select>
         </div>
       </div>
@@ -159,7 +161,7 @@ export default {
     return {
       teams: [],
       matchs: [],
-      selected: "1",
+      selected: "6",
       showModal: false,
       selectedMatch: [],
       Ismatchempty: true,
