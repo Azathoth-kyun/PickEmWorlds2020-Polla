@@ -1,19 +1,33 @@
 <template>
   <div>
-    <div class="modal" :class="{'is-active': showModal}">
+    <div class="modal" :class="{ 'is-active': showModal }">
       <div class="modal-background"></div>
       <div class="modal-content">
         <!-- Que paso, pedazo de gobernado xd? -->
-        <div v-if="Ismatchempty== true" class="notification is-danger" style="text-align: center;">
+        <div
+          v-if="Ismatchempty == true"
+          class="notification is-danger"
+          style="text-align: center"
+        >
           <strong>Error!</strong> problema al cargar los datos.
         </div>
-        <div v-else-if="selectedMatch.closed == true" class="notification is-warning" style="text-align: center;">
-          <strong>Cerrado!</strong> ya no puede predecir este juego, porque ya ha pasado el tiempo disponible.
+        <div
+          v-else-if="
+            selectedMatch.closed == true ||
+            compareDates(selectedMatch.day,now) == true
+          "
+          class="notification is-warning"
+          style="text-align: center"
+        >
+          <strong>Cerrado!</strong> ya no puede predecir este juego, porque ya
+          ha pasado el tiempo disponible.
         </div>
         <div v-else>
           <div class="card">
             <header class="card-header">
-              <p class="card-header-title">Pronosticar el juego N°{{selectedMatch.id}}</p>
+              <p class="card-header-title">
+                Pronosticar el juego N°{{ selectedMatch.id }}
+              </p>
             </header>
             <div class="card-content">
               <div class="content">
@@ -33,28 +47,34 @@
             </div>
             <footer class="card-footer">
               <a
-                @click.prevent="predict(selectedMatch.team1.name);"
+                @click.prevent="predict(selectedMatch.team1.name)"
                 class="card-footer-item"
-              >{{selectedMatch.team1.name}}</a>
+                >{{ selectedMatch.team1.name }}</a
+              >
               <a
-                @click.prevent="predict(selectedMatch.team2.name);"
+                @click.prevent="predict(selectedMatch.team2.name)"
                 class="card-footer-item"
-              >{{selectedMatch.team2.name}}</a>
+                >{{ selectedMatch.team2.name }}</a
+              >
             </footer>
           </div>
           <transition name="fade" mode="out-in">
             <div
-              v-if="showMessage==true"
+              v-if="showMessage == true"
               class="notification"
-              :class="[statusMessage, {'is-active': showMessage}]"
-              style="text-align: center; margin-top: 10px;"
+              :class="[statusMessage, { 'is-active': showMessage }]"
+              style="text-align: center; margin-top: 10px"
             >
-              <strong>{{saveMessage}}</strong>
+              <strong>{{ saveMessage }}</strong>
             </div>
           </transition>
         </div>
       </div>
-      <button class="modal-close is-large" aria-label="close" @click.prevent="closeModal();"></button>
+      <button
+        class="modal-close is-large"
+        aria-label="close"
+        @click.prevent="closeModal()"
+      ></button>
     </div>
     <div class="columns is-mobile">
       <div class="column"></div>
@@ -63,12 +83,7 @@
       >
         <div class="select">
           <select @change="readMatchs()" v-model="selected">
-            <option value="1">Day 1</option>
-            <option value="2">Day 2</option>
-            <option value="3">Day 3</option>
-            <option value="4">Day 4</option>
-            <option value="5">Day 5</option>
-            <option selected value="6">Day 6</option>
+            <option v-for="day in days" :key="day.key" :value="day.id">{{day.name}}</option>
           </select>
         </div>
       </div>
@@ -85,21 +100,24 @@
               v-for="match in matchs"
               :key="match.key"
               class="size-font-predict"
-              style="cursor: pointer;"
-              @click.prevent="voteModal(match.id);"
+              style="cursor: pointer"
+              @click.prevent="voteModal(match.id)"
             >
               <td>
                 <figure class="image is-48x48">
                   <img :src="match.team1.img" />
                 </figure>
-                <b>{{match.team1.name}}</b>
+                <b>{{ match.team1.name }}</b>
               </td>
-              <td style="text-align: center; vertical-align: middle;">VS</td>
-              <td style="text-align: right;">
-                <figure class="image is-48x48" style="margin-left:auto; margin-right:0;">
+              <td style="text-align: center; vertical-align: middle">VS</td>
+              <td style="text-align: right">
+                <figure
+                  class="image is-48x48"
+                  style="margin-left: auto; margin-right: 0"
+                >
                   <img :src="match.team2.img" />
                 </figure>
-                <b>{{match.team2.name}}</b>
+                <b>{{ match.team2.name }}</b>
               </td>
             </tr>
           </tbody>
@@ -154,6 +172,7 @@ select {
 <script>
 import { mapGetters } from "vuex";
 import firebase from "firebase";
+import moment from "moment";
 
 export default {
   name: "predict_comp",
@@ -161,13 +180,15 @@ export default {
     return {
       teams: [],
       matchs: [],
-      selected: "6",
+      days: [],
+      selected: "7",
       showModal: false,
       selectedMatch: [],
       Ismatchempty: true,
       saveMessage: "",
       statusMessage: "",
       showMessage: false,
+      now: Date(),
     };
   },
   methods: {
@@ -182,6 +203,22 @@ export default {
               key: doc.id,
               name: doc.data().name,
               img: doc.data().team_img,
+              id: doc.data().id,
+            });
+          });
+        });
+    },
+    readDays() {
+      const db = firebase.firestore();
+      db.collection("days")
+        .orderBy("date", "asc")
+        .onSnapshot((snapshotChange) => {
+          this.days = [];
+          snapshotChange.forEach((doc) => {
+            this.days.push({
+              key: doc.id,
+              name: doc.data().name,
+              date: doc.data().date,
               id: doc.data().id,
             });
           });
@@ -204,6 +241,7 @@ export default {
               team2: team2_aux,
               id: doc.data().id,
               closed: doc.data().closed,
+              day: doc.data().day,
             });
           });
           this.matchs.sort((a, b) => parseFloat(a.id) - parseFloat(b.id));
@@ -217,6 +255,15 @@ export default {
         }
       }
       return team;
+    },
+    day_asignation(value) {
+      var day;
+      for (let index = 0; index < this.days.length; index++) {
+        if (this.days[index].id == value) {
+          day = this.days[index];
+        }
+      }
+      return day;
     },
     get_match(value) {
       var match;
@@ -236,7 +283,7 @@ export default {
       this.showModal = false;
       this.showMessage = false;
     },
-    pruebaMessage(message,status) {
+    pruebaMessage(message, status) {
       this.saveMessage = message;
       this.statusMessage = status;
       this.showMessage = true;
@@ -261,12 +308,22 @@ export default {
           user: this.user.data.uid,
         })
         .then(function () {
-          self.pruebaMessage("Guardado correctamente"," is-success");
+          self.pruebaMessage("Guardado correctamente", " is-success");
         })
         .catch(function (error) {
           console.error("Error writing document: ", error);
-          self.pruebaMessage("Error al guardar"," is-danger");
+          self.pruebaMessage("Error al guardar", " is-danger");
         });
+    },
+    compareDates(value1, value2) {
+      var day_aux = this.day_asignation(value1);
+      var date1 = moment(day_aux.date.toDate()).format("dd-mm-yyyy");
+      var date2 = moment(value2).format("dd-mm-yyyy");
+      if (date1 > date2) {
+        return false;
+      } else {
+        return true;
+      }
     },
   },
   computed: {
@@ -275,6 +332,7 @@ export default {
     }),
   },
   mounted() {
+    this.readDays();
     this.readTeams();
     this.readMatchs();
   },
