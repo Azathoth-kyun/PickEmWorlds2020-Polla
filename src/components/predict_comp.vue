@@ -172,7 +172,7 @@ select {
 <script>
 import { mapGetters } from "vuex";
 import firebase from "firebase";
-import moment from "moment";
+//import moment from "moment";
 
 export default {
   name: "predict_comp",
@@ -317,12 +317,15 @@ export default {
     },
     compareDates(value1, value2) {
       var day_aux = this.day_asignation(value1);
-      var date1 = moment(day_aux.date.toDate()).format("dd-mm-yyyy");
-      var date2 = moment(value2).format("dd-mm-yyyy");
-      if (date1 > date2) {
-        return false;
-      } else {
+      console.log(day_aux.date.toDate());
+      console.log(value2);
+      var new_day = new Date(day_aux.date.toDate());
+      var new_day2 = new Date(value2);
+      var result = new_day - new_day2;
+      if (result <= 0) {
         return true;
+      } else {
+        return false;
       }
     },
   },
