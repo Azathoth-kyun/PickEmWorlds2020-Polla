@@ -181,7 +181,7 @@ export default {
       teams: [],
       matchs: [],
       days: [],
-      selected: "7",
+      selected: "9",
       showModal: false,
       selectedMatch: [],
       Ismatchempty: true,
