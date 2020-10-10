@@ -20,6 +20,7 @@
       <div class="navbar-start">
         <a class="navbar-item" @click.prevent="go_predict">Predecir</a>
         <a class="navbar-item" @click.prevent="go_table">Puntaje</a>
+        <a class="navbar-item" @click.prevent="go_registro">Registro</a>
       </div>
 
       <div class="navbar-end">
@@ -111,6 +112,11 @@ export default {
     go_predict() {
       this.$router.replace({
         name: "predict",
+      });
+    },
+    go_registro() {
+      this.$router.replace({
+        name: "registro",
       });
     },
   },

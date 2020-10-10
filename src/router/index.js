@@ -5,6 +5,7 @@ import Prueba from '@/views/Prueba_Screen.vue'
 import Dashboard from '@/views/Dashboard.vue'
 import Tabla from '@/views/Tabla.vue'
 import Predict from '@/views/Predict.vue'
+import Registro from '@/views/Registro.vue'
 import firebase from 'firebase'
 
 Vue.use(VueRouter)
@@ -55,6 +56,15 @@ const routes = [
     component: Predict,
     meta: {
       title: 'Polla KSEL - Predecir',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/registro',
+    name: 'registro',
+    component: Registro,
+    meta: {
+      title: 'Polla KSEL - Registro de Jugadas',
       requiresAuth: true
     }
   }
