@@ -109,7 +109,8 @@
                 </figure>
                 <b>{{ match.team1.name }}</b>
               </td>
-              <td style="text-align: center; vertical-align: middle">VS</td>
+              <td v-if="match.winner == ''" style="text-align: center; vertical-align: middle">VS</td>
+              <td v-else style="text-align: center; vertical-align: middle">{{match.winner}}</td>
               <td style="text-align: right">
                 <figure
                   class="image is-48x48"
@@ -181,7 +182,7 @@ export default {
       teams: [],
       matchs: [],
       days: [],
-      selected: "14",
+      selected: "15",
       showModal: false,
       selectedMatch: [],
       Ismatchempty: true,
@@ -242,6 +243,7 @@ export default {
               id: doc.data().id,
               closed: doc.data().closed,
               day: doc.data().day,
+              winner: doc.data().winner,
             });
           });
           this.matchs.sort((a, b) => parseFloat(a.id) - parseFloat(b.id));

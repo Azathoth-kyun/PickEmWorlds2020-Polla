@@ -9,11 +9,9 @@
               <td
                 v-for="jogos in jogosResult"
                 :key="jogos.username"
-                style="
-                  text-align: center;
-                "
+                style="text-align: center"
               >
-                <figure class="image is-48x48" style="margin: 0 auto;">
+                <figure class="image is-48x48" style="margin: 0 auto">
                   <img
                     :src="jogos.user_img"
                     class="is-rounded height-logo-table"
@@ -70,7 +68,15 @@
                   </figure>
                   <b>{{ match.team1.name }}</b>
                 </td>
-                <td style="text-align: center; vertical-align: middle">VS</td>
+                <td
+                  v-if="match.winner == ''"
+                  style="text-align: center; vertical-align: middle"
+                >
+                  VS
+                </td>
+                <td v-else style="text-align: center; vertical-align: middle">
+                  {{ match.winner }}
+                </td>
                 <td style="text-align: right">
                   <figure
                     class="image is-48x48"
@@ -305,6 +311,7 @@ export default {
               id: doc.data().id,
               closed: doc.data().closed,
               day: doc.data().day,
+              winner: doc.data().winner,
             });
           });
           this.matchs.sort((a, b) => parseFloat(a.id) - parseFloat(b.id));
